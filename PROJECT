@@ -1,0 +1,19 @@
+domain: astrokube.com
+layout:
+- go.kubebuilder.io/v3
+projectName: registry-controller
+repo: github.com/astrokube/registry-controller
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: astrokube.com
+  group: registry
+  kind: ECRCredentials
+  path: github.com/astrokube/registry-controller/api/v1alpha1
+  version: v1alpha1
+  webhooks:
+    validation: true
+    webhookVersion: v1
+version: "3"
