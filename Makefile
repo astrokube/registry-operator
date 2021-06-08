@@ -62,17 +62,8 @@ test: manifests generate fmt vet ## Run tests.
 
 ##@ Docs
 
-docs-docker-build:
-	cd docs && docker build -t $(IMG_DOCS) .
-
-docs-docker-push:
-	docker push $(IMG_DOCS)
-
 docs-docker-run:
-	docker run --rm -it -p 3000:3000 -v $(shell pwd)/docs:/docs $(IMG_DOCS)
-
-docs-run:
-	docsify serve ./docs
+	docker run --rm -it -p 8000:8000 -v $(shell pwd):/docs squidfunk/mkdocs-material
 
 ##@ Build
 
