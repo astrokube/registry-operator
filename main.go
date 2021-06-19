@@ -83,23 +83,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	credentialsReconciler := controllers.CredentialsReconciler{
-		Client:   mgr.GetClient(),
-		Log:      ctrl.Log.WithName("controllers").WithName("ECRCredentials"),
-		Recorder: mgr.GetEventRecorderFor("credentials-controller"),
-		Scheme:   mgr.GetScheme(),
-	}
+	//credentialsReconciler := controllers.CredentialsReconciler{
+	//	Client:   mgr.GetClient(),
+	//	Log:      ctrl.Log.WithName("controllers").WithName("ECRCredentials"),
+	//	Recorder: mgr.GetEventRecorderFor("credentials-controller"),
+	//	Scheme:   mgr.GetScheme(),
+	//}
 
-	if err = (&controllers.ECRCredentialsReconciler{
-		CredentialsReconciler: credentialsReconciler,
-		Client:                mgr.GetClient(),
-		Log:                   ctrl.Log.WithName("controllers").WithName("ECRCredentials"),
-		Recorder:              mgr.GetEventRecorderFor("ecr-credentials-controller"),
-		Scheme:                mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "ECRCredentials")
-		os.Exit(1)
-	}
+	// if err = (&controllers.ECRCredentialsReconciler{
+	// 	CredentialsReconciler: credentialsReconciler,
+	// 	Client:                mgr.GetClient(),
+	// 	Log:                   ctrl.Log.WithName("controllers").WithName("ECRCredentials"),
+	// 	Recorder:              mgr.GetEventRecorderFor("ecr-credentials-controller"),
+	// 	Scheme:                mgr.GetScheme(),
+	// }).SetupWithManager(mgr); err != nil {
+	// 	setupLog.Error(err, "unable to create controller", "controller", "ECRCredentials")
+	// 	os.Exit(1)
+	// }
 
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		setupLog.Info("set up webhook")
@@ -115,6 +115,14 @@ func main() {
 		}
 	}
 
+	if err = (&controllers.RegistryCredentialsReconciler{
+		Client:   mgr.GetClient(),
+		Recorder: mgr.GetEventRecorderFor("registry-credentials-controller"),
+		Scheme:   mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "RegistryCredentials")
+		os.Exit(1)
+	}
 	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {

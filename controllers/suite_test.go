@@ -96,6 +96,13 @@ var _ = BeforeSuite(func() {
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
+	err = (&RegistryCredentialsReconciler{
+		Client:   k8sManager.GetClient(),
+		Recorder: k8sManager.GetEventRecorderFor("registry-credentials-controller"),
+		Scheme:   k8sManager.GetScheme(),
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
 	go func() {
 		err = k8sManager.Start(ctrl.SetupSignalHandler())
 		Expect(err).ToNot(HaveOccurred())
