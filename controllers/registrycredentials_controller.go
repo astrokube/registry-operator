@@ -28,7 +28,9 @@ import (
 	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 
 	"github.com/astrokube/registry-controller/api/v1alpha1"
 	registryv1alpha1 "github.com/astrokube/registry-controller/api/v1alpha1"
@@ -132,6 +134,14 @@ func (r *RegistryCredentialsReconciler) Reconcile(ctx context.Context, req ctrl.
 func (r *RegistryCredentialsReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&registryv1alpha1.RegistryCredentials{}).
+		WithEventFilter(predicate.Funcs{
+			UpdateFunc: func(e event.UpdateEvent) bool {
+				// Skip if triggered by status update
+				oldGeneration := e.ObjectOld.GetGeneration()
+				newGeneration := e.ObjectNew.GetGeneration()
+				return oldGeneration != newGeneration
+			},
+		}).
 		Complete(r)
 }
 
@@ -254,25 +264,11 @@ func (r *RegistryCredentialsReconciler) createOrUpdateSecret(log logr.Logger, ob
 }
 
 func (r *RegistryCredentialsReconciler) setError(log logr.Logger, registryCredentials *registryv1alpha1.RegistryCredentials, err error) error {
-	// Set Error status
-	if err := r.setStatus(log, registryCredentials, registryv1alpha1.RegistryCredentialsErrored); err != nil {
-		log.Error(err, "Unable to set status")
-		return err
-	}
-
-	// Set ErrorMessage
-	if err := r.setErrorMessage(log, registryCredentials, err.Error()); err != nil {
-		log.Error(err, "Unable to set ErrorMessage")
-		return err
-	}
-
-	return nil
-}
-
-func (r *RegistryCredentialsReconciler) setErrorMessage(log logr.Logger, registryCredentials *registryv1alpha1.RegistryCredentials, message string) error {
 	ctx := context.Background()
 
-	registryCredentials.Status.ErrorMessage = message
+	registryCredentials.Status.ErrorMessage = err.Error()
+	registryCredentials.Status.State = registryv1alpha1.RegistryCredentialsErrored
+
 	if err := r.Status().Update(ctx, registryCredentials); err != nil {
 		log.Error(err, "Unable to set status")
 		return err
