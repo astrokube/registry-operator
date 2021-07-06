@@ -85,6 +85,11 @@ func (r *RegistryCredentialsReconciler) Reconcile(ctx context.Context, req ctrl.
 			return ctrl.Result{}, nil
 
 		case registryv1alpha1.RegistryCredentialsAuthenticated:
+			if err := r.authenticate(l, registryCredentials); err != nil {
+				return ctrl.Result{
+					RequeueAfter: time.Minute * 5,
+				}, err
+			}
 			return ctrl.Result{}, nil
 
 		case registryv1alpha1.RegistryCredentialsErrored:
