@@ -15,7 +15,7 @@ import (
 var _ = Describe("RegistryCredentials controller", func() {
 
 	const (
-		timeout   = time.Second * 5
+		timeout   = time.Second * 10
 		interval  = time.Second * 1
 		namespace = "default"
 	)

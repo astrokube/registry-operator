@@ -24,9 +24,9 @@ import (
 )
 
 // log is for logging in this package.
-var ecrcredentialslog = logf.Log.WithName("ecrcredentials-resource")
+var registrycredentialslog = logf.Log.WithName("registrycredentials-resource")
 
-func (r *ECRCredentials) SetupWebhookWithManager(mgr ctrl.Manager) error {
+func (r *RegistryCredentials) SetupWebhookWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewWebhookManagedBy(mgr).
 		For(r).
 		Complete()
@@ -34,30 +34,41 @@ func (r *ECRCredentials) SetupWebhookWithManager(mgr ctrl.Manager) error {
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 
-// TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
-//+kubebuilder:webhook:path=/validate-registry-astrokube-com-v1alpha1-ecrcredentials,mutating=false,failurePolicy=fail,sideEffects=None,groups=registry.astrokube.com,resources=ecrcredentials,verbs=create;update,versions=v1alpha1,name=vecrcredentials.kb.io,admissionReviewVersions={v1,v1beta1}
+//+kubebuilder:webhook:path=/mutate-registry-astrokube-com-v1alpha1-registrycredentials,mutating=true,failurePolicy=fail,sideEffects=None,groups=registry.astrokube.com,resources=registrycredentials,verbs=create;update,versions=v1alpha1,name=mregistrycredentials.kb.io,admissionReviewVersions={v1,v1beta1}
 
-var _ webhook.Validator = &ECRCredentials{}
+var _ webhook.Defaulter = &RegistryCredentials{}
+
+// Default implements webhook.Defaulter so a webhook will be registered for the type
+func (r *RegistryCredentials) Default() {
+	registrycredentialslog.Info("default", "name", r.Name)
+
+	// TODO(user): fill in your defaulting logic.
+}
+
+// TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
+//+kubebuilder:webhook:path=/validate-registry-astrokube-com-v1alpha1-registrycredentials,mutating=false,failurePolicy=fail,sideEffects=None,groups=registry.astrokube.com,resources=registrycredentials,verbs=create;update,versions=v1alpha1,name=vregistrycredentials.kb.io,admissionReviewVersions={v1,v1beta1}
+
+var _ webhook.Validator = &RegistryCredentials{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
-func (r *ECRCredentials) ValidateCreate() error {
-	ecrcredentialslog.Info("validate create", "name", r.Name)
+func (r *RegistryCredentials) ValidateCreate() error {
+	registrycredentialslog.Info("validate create", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object creation.
 	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
-func (r *ECRCredentials) ValidateUpdate(old runtime.Object) error {
-	ecrcredentialslog.Info("validate update", "name", r.Name)
+func (r *RegistryCredentials) ValidateUpdate(old runtime.Object) error {
+	registrycredentialslog.Info("validate update", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object update.
 	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
-func (r *ECRCredentials) ValidateDelete() error {
-	ecrcredentialslog.Info("validate delete", "name", r.Name)
+func (r *RegistryCredentials) ValidateDelete() error {
+	registrycredentialslog.Info("validate delete", "name", r.Name)
 
 	// TODO(user): fill in your validation logic upon object deletion.
 	return nil

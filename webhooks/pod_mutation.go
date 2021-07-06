@@ -47,7 +47,7 @@ func (w *MutatePodWebhook) Handle(ctx context.Context, req admission.Request) ad
 	// Get secrets to inject in the pod
 	secretsToAdd := []string{}
 	for _, image := range images {
-		ecrSecrets, err := w.getSecretNamesForECRCredentials(image, pod.ObjectMeta.Namespace)
+		ecrSecrets, err := w.getSecretNamesForRegistryCredentials(image, pod.ObjectMeta.Namespace)
 		if err != nil {
 			return admission.Errored(http.StatusInternalServerError, err)
 		}
@@ -75,22 +75,22 @@ func (w *MutatePodWebhook) InjectDecoder(d *admission.Decoder) error {
 	return nil
 }
 
-func (w *MutatePodWebhook) getSecretNamesForECRCredentials(image, namespace string) ([]string, error) {
-	ecrCredentialsList, err := w.getECRCredentialsList(namespace)
+func (w *MutatePodWebhook) getSecretNamesForRegistryCredentials(image, namespace string) ([]string, error) {
+	registryCredentialsList, err := w.getRegistryCredentialsList(namespace)
 	if err != nil {
 		return nil, err
 	}
 
 	secretNames := []string{}
 
-	for _, ecrCredentials := range ecrCredentialsList.Items {
-		for _, imageSelector := range ecrCredentials.Spec.ImageSelector {
+	for _, registryCredentials := range registryCredentialsList.Items {
+		for _, imageSelector := range registryCredentials.Spec.ImageSelector.MatchHostRegexp {
 			match, err := regexp.Match(imageSelector, []byte(image))
 			if err != nil {
 				return nil, err
 			}
 			if match {
-				secretNames = append(secretNames, ecrCredentials.ObjectMeta.Name)
+				secretNames = append(secretNames, registryCredentials.ObjectMeta.Name)
 			}
 		}
 	}
@@ -98,8 +98,8 @@ func (w *MutatePodWebhook) getSecretNamesForECRCredentials(image, namespace stri
 	return secretNames, nil
 }
 
-func (w *MutatePodWebhook) getECRCredentialsList(namespace string) (*registryv1alpha1.ECRCredentialsList, error) {
-	list := &registryv1alpha1.ECRCredentialsList{}
+func (w *MutatePodWebhook) getRegistryCredentialsList(namespace string) (*registryv1alpha1.RegistryCredentialsList, error) {
+	list := &registryv1alpha1.RegistryCredentialsList{}
 	err := w.Client.List(context.TODO(), list, &client.ListOptions{Namespace: namespace})
 	if err != nil && !errors.IsNotFound(err) {
 		return nil, err
