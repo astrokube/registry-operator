@@ -17,6 +17,8 @@ limitations under the License.
 package v1alpha1
 
 import (
+	"errors"
+
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -41,11 +43,8 @@ var _ webhook.Defaulter = &RegistryCredentials{}
 // Default implements webhook.Defaulter so a webhook will be registered for the type
 func (r *RegistryCredentials) Default() {
 	registrycredentialslog.Info("default", "name", r.Name)
-
-	// TODO(user): fill in your defaulting logic.
 }
 
-// TODO(user): change verbs to "verbs=create;update;delete" if you want to enable deletion validation.
 //+kubebuilder:webhook:path=/validate-registry-astrokube-com-v1alpha1-registrycredentials,mutating=false,failurePolicy=fail,sideEffects=None,groups=registry.astrokube.com,resources=registrycredentials,verbs=create;update,versions=v1alpha1,name=vregistrycredentials.kb.io,admissionReviewVersions={v1,v1beta1}
 
 var _ webhook.Validator = &RegistryCredentials{}
@@ -54,7 +53,10 @@ var _ webhook.Validator = &RegistryCredentials{}
 func (r *RegistryCredentials) ValidateCreate() error {
 	registrycredentialslog.Info("validate create", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object creation.
+	if r.Spec.Provider.AWSElasticContainerRegistry == nil {
+		return errors.New("You must set a provider")
+	}
+
 	return nil
 }
 
@@ -62,7 +64,10 @@ func (r *RegistryCredentials) ValidateCreate() error {
 func (r *RegistryCredentials) ValidateUpdate(old runtime.Object) error {
 	registrycredentialslog.Info("validate update", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object update.
+	if r.Spec.Provider.AWSElasticContainerRegistry == nil {
+		return ErrProviderNotSet
+	}
+
 	return nil
 }
 
@@ -70,6 +75,5 @@ func (r *RegistryCredentials) ValidateUpdate(old runtime.Object) error {
 func (r *RegistryCredentials) ValidateDelete() error {
 	registrycredentialslog.Info("validate delete", "name", r.Name)
 
-	// TODO(user): fill in your validation logic upon object deletion.
 	return nil
 }
