@@ -1,6 +1,6 @@
 # Integrate AWS ECR
 
-You can integrate AWS ECR in a single Namespace by creating an ECRCredentials object.
+You can integrate AWS ECR in a single Namespace by creating a RegistryCredentials object.
 
 
 ## Prerequisites
@@ -13,7 +13,7 @@ You can integrate AWS ECR in a single Namespace by creating an ECRCredentials ob
 
     ```yaml
     apiVersion: registry.astrokube.com/v1alpha1
-    kind: ECRCredentials
+    kind: RegistryCredentials
     metadata:
       name: sample
     spec:
@@ -22,16 +22,16 @@ You can integrate AWS ECR in a single Namespace by creating an ECRCredentials ob
       region: eu-central-1
     ```
 
-2. Apply the configuration to create the ECRCredentials object:
+2. Apply the configuration to create the RegistryCredentials object:
 
     ```sh
     kubectl apply -f ecr-credentials.yaml
     ```
 
-3. Verify the ECRCredentials is authenticated:
+3. Verify the RegistryCredentials is authenticated:
 
     ```sh
-    kubectl get ecrcredentials
+    kubectl get registrycredentials
     ```
 
     _Example output_
@@ -44,7 +44,7 @@ You can integrate AWS ECR in a single Namespace by creating an ECRCredentials ob
     > NOTE: 
     > The status will be set as Unauthorized if your put the wrong AWS Access Key or if it hasn't the correct IAM Policy attached.
 
-4. Once the ECRCredentials object is Authenticated, a new secret will be created and can be used for the ImagePullPolicy.
+4. Once the RegistryCredentials object is Authenticated, a new secret will be created and can be used for the ImagePullPolicy.
 
     You can verify the secret has been created with the following command:
 
