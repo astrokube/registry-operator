@@ -15,7 +15,7 @@ import (
 var _ = Describe("RegistryCredentials controller", func() {
 
 	const (
-		timeout   = time.Second * 1
+		timeout   = time.Second * 5
 		interval  = time.Second * 1
 		namespace = "default"
 	)
@@ -81,6 +81,38 @@ var _ = Describe("RegistryCredentials controller", func() {
 				}, fetched)
 				return fetched.Status.State
 			}, timeout, interval).Should(Equal(registryv1alpha1.RegistryCredentialsErrored))
+		})
+
+		It("Should set RegistryCredentials.Status to Error when provider is not set", func() {
+			By("By creating a new RegistryCredentials")
+			ctx := context.Background()
+			name := "provider-not-set"
+			r := &registryv1alpha1.RegistryCredentials{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      name,
+					Namespace: namespace,
+				},
+				Spec: registryv1alpha1.RegistryCredentialsSpec{},
+			}
+			Expect(k8sClient.Create(ctx, r)).Should(Succeed())
+
+			fetched := &registryv1alpha1.RegistryCredentials{}
+			Eventually(func() registryv1alpha1.RegistryCredentialsState {
+				k8sClient.Get(context.Background(), types.NamespacedName{
+					Name:      name,
+					Namespace: namespace,
+				}, fetched)
+				return fetched.Status.State
+			}, timeout, interval).Should(Equal(registryv1alpha1.RegistryCredentialsErrored))
+
+			Eventually(func() string {
+				k8sClient.Get(context.Background(), types.NamespacedName{
+					Name:      name,
+					Namespace: namespace,
+				}, fetched)
+				return fetched.Status.ErrorMessage
+			}, timeout, interval).Should(Equal("Provider not implemented"))
+
 		})
 
 		if os.Getenv("ENABLE_ALL_TESTS") == "true" {

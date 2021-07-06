@@ -19,7 +19,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -74,65 +73,19 @@ func (r *RegistryCredentialsReconciler) Reconcile(ctx context.Context, req ctrl.
 
 	// registryCredentials is not going to be deleted
 	if registryCredentials.ObjectMeta.DeletionTimestamp.IsZero() {
-
-		switch registryCredentials.Status.State {
-		case "":
-			if err := r.authenticate(l, registryCredentials); err != nil {
-				return ctrl.Result{
-					RequeueAfter: time.Minute * 5,
-				}, err
-			}
-			return ctrl.Result{}, nil
-
-		case registryv1alpha1.RegistryCredentialsAuthenticated:
-			if err := r.authenticate(l, registryCredentials); err != nil {
-				return ctrl.Result{
-					RequeueAfter: time.Minute * 5,
-				}, err
-			}
-			return ctrl.Result{}, nil
-
-		case registryv1alpha1.RegistryCredentialsErrored:
-			if err := r.authenticate(l, registryCredentials); err != nil {
-				return ctrl.Result{
-					RequeueAfter: time.Minute * 5,
-				}, err
-			}
-			return ctrl.Result{}, nil
-
-		case registryv1alpha1.RegistryCredentialsAuthenticating:
-			if err := r.authenticate(l, registryCredentials); err != nil {
-				return ctrl.Result{
-					RequeueAfter: time.Minute * 5,
-				}, err
-			}
-			return ctrl.Result{}, nil
-
-		case registryv1alpha1.RegistryCredentialsUnauthorized:
-			if err := r.authenticate(l, registryCredentials); err != nil {
-				return ctrl.Result{
-					RequeueAfter: time.Minute * 5,
-				}, err
-			}
-
-			return ctrl.Result{}, nil
+		if err := r.authenticate(l, registryCredentials); err != nil {
+			return ctrl.Result{}, err
 		}
-
+		return ctrl.Result{}, nil
 	} else {
 		// Set Terminating status
 		if err := r.setStatus(l, registryCredentials, registryv1alpha1.RegistryCredentialsTerminating); err != nil {
-			return ctrl.Result{
-				RequeueAfter: time.Minute * 5,
-			}, err
+			return ctrl.Result{}, err
 		}
 
 		return ctrl.Result{}, nil
 
 	}
-
-	// your logic here
-
-	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -173,6 +126,12 @@ func (r *RegistryCredentialsReconciler) authenticate(log logr.Logger, registryCr
 			return err
 		}
 		return nil
+	}
+
+	// Set Authenticated status
+	if err := r.setStatus(log, registryCredentials, registryv1alpha1.RegistryCredentialsAuthenticating); err != nil {
+		log.Error(err, "Unable to set status")
+		return err
 	}
 
 	intent := authenticator.GetToken(log, registryCredentials)
