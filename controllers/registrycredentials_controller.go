@@ -44,6 +44,7 @@ type RegistryCredentialsReconciler struct {
 	Scheme   *runtime.Scheme
 }
 
+//+kubebuilder:rbac:groups=core,resources=secrets;events,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=registry.astrokube.com,resources=registrycredentials,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=registry.astrokube.com,resources=registrycredentials/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=registry.astrokube.com,resources=registrycredentials/finalizers,verbs=update
