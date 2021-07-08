@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -96,12 +97,18 @@ func (w *MutatePodWebhook) getSecretNamesForRegistryCredentials(image, namespace
 	secretNames := []string{}
 
 	for _, registryCredentials := range registryCredentialsList.Items {
-		for _, imageSelector := range registryCredentials.Spec.ImageSelector.MatchHostRegexp {
+		for _, imageSelector := range registryCredentials.Spec.ImageSelector.MatchRegexp {
 			match, err := regexp.Match(imageSelector, []byte(image))
 			if err != nil {
 				return nil, err
 			}
 			if match {
+				secretNames = append(secretNames, registryCredentials.ObjectMeta.Name)
+			}
+		}
+		for _, imageSelector := range registryCredentials.Spec.ImageSelector.MatchEquals {
+			imageWithoutTag := strings.Split(image, ":")[0]
+			if imageSelector == imageWithoutTag {
 				secretNames = append(secretNames, registryCredentials.ObjectMeta.Name)
 			}
 		}

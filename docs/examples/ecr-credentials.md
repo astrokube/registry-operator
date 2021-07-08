@@ -29,5 +29,6 @@ spec:
       secretAccessKey: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       region: eu-central-1
   imageSelector:
-    - 111111111111.dkr.ecr.eu-central-1.amazonaws.com/myimage:.*
+    matchEquals:
+      - 111111111111.dkr.ecr.eu-central-1.amazonaws.com/myimage
 ```

@@ -34,13 +34,7 @@ type ImageSelector struct {
 	MatchRegexp []string `json:"matchRegexp,omitempty"`
 
 	//+kubebuilder:validation:Optional
-	MatchExact []string `json:"matchExact,omitempty"`
-
-	//+kubebuilder:validation:Optional
-	MatchHostRegexp []string `json:"matchHostRegexp,omitempty"`
-
-	//+kubebuilder:validation:Optional
-	MatchHostExact []string `json:"matchHostExact,omitempty"`
+	MatchEquals []string `json:"matchEquals,omitempty"`
 }
 
 type RegistryProvider struct {

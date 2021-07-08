@@ -47,18 +47,8 @@ func (in *ImageSelector) DeepCopyInto(out *ImageSelector) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
-	if in.MatchExact != nil {
-		in, out := &in.MatchExact, &out.MatchExact
-		*out = make([]string, len(*in))
-		copy(*out, *in)
-	}
-	if in.MatchHostRegexp != nil {
-		in, out := &in.MatchHostRegexp, &out.MatchHostRegexp
-		*out = make([]string, len(*in))
-		copy(*out, *in)
-	}
-	if in.MatchHostExact != nil {
-		in, out := &in.MatchHostExact, &out.MatchHostExact
+	if in.MatchEquals != nil {
+		in, out := &in.MatchEquals, &out.MatchEquals
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}

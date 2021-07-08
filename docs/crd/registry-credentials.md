@@ -31,8 +31,8 @@ RegistryCredentials represents the credentials required to authenticate to a rem
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `matchRegexp` | `array (string)` | no | Comma separated list of regexp to match container images. | 
-| `matchExact` | `array (string)` | no | Comma separated list of images to match container images. | 
+| `matchRegexp` | `array (string)` | no | Comma separated list of regexp to match container images. |
+| `matchEquals` | `array (string)` | no | Comma separated list of images to match container images. |
 
 
 ### .status
