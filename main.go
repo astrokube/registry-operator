@@ -86,8 +86,9 @@ func main() {
 	if os.Getenv("ENABLE_WEBHOOKS") != "false" {
 		setupLog.Info("set up webhook")
 		mutatePodWebhook := &webhooks.MutatePodWebhook{
-			Client: mgr.GetClient(),
-			Log:    ctrl.Log.WithName("controllers").WithName("Pod"),
+			Client:   mgr.GetClient(),
+			Log:      ctrl.Log.WithName("controllers").WithName("Pod"),
+			Recorder: mgr.GetEventRecorderFor("registry-credentials-controller"),
 		}
 		mgr.GetWebhookServer().Register("/mutate-pod", &webhook.Admission{Handler: mutatePodWebhook})
 
