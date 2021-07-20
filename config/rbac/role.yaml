@@ -10,17 +10,6 @@ rules:
   - ""
   resources:
   - events
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - ""
-  resources:
   - secrets
   verbs:
   - create
@@ -33,7 +22,7 @@ rules:
 - apiGroups:
   - registry.astrokube.com
   resources:
-  - ecrcredentials
+  - registrycredentials
   verbs:
   - create
   - delete
@@ -45,13 +34,13 @@ rules:
 - apiGroups:
   - registry.astrokube.com
   resources:
-  - ecrcredentials/finalizers
+  - registrycredentials/finalizers
   verbs:
   - update
 - apiGroups:
   - registry.astrokube.com
   resources:
-  - ecrcredentials/status
+  - registrycredentials/status
   verbs:
   - get
   - patch

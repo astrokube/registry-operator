@@ -80,19 +80,10 @@ var _ = BeforeSuite(func() {
 	})
 	Expect(err).ToNot(HaveOccurred())
 
-	credentialsReconciler := CredentialsReconciler{
+	err = (&RegistryCredentialsReconciler{
 		Client:   k8sManager.GetClient(),
-		Log:      ctrl.Log.WithName("controllers").WithName("ECRCredentials"),
-		Recorder: k8sManager.GetEventRecorderFor("credentials-controller"),
+		Recorder: k8sManager.GetEventRecorderFor("registry-credentials-controller"),
 		Scheme:   k8sManager.GetScheme(),
-	}
-
-	err = (&ECRCredentialsReconciler{
-		CredentialsReconciler: credentialsReconciler,
-		Client:                k8sManager.GetClient(),
-		Log:                   ctrl.Log.WithName("controllers").WithName("ECRCredentials"),
-		Recorder:              k8sManager.GetEventRecorderFor("ecr-credentials-controller"),
-		Scheme:                k8sManager.GetScheme(),
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 

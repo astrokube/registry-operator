@@ -8,6 +8,27 @@ metadata:
 webhooks:
 - admissionReviewVersions:
   - v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: webhook-service
+      namespace: system
+      path: /mutate-registry-astrokube-com-v1alpha1-registrycredentials
+  failurePolicy: Fail
+  name: mregistrycredentials.kb.io
+  rules:
+  - apiGroups:
+    - registry.astrokube.com
+    apiVersions:
+    - v1alpha1
+    operations:
+    - CREATE
+    - UPDATE
+    resources:
+    - registrycredentials
+  sideEffects: None
+- admissionReviewVersions:
+  - v1
   clientConfig:
     service:
       name: webhook-service
@@ -41,9 +62,9 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-registry-astrokube-com-v1alpha1-ecrcredentials
+      path: /validate-registry-astrokube-com-v1alpha1-registrycredentials
   failurePolicy: Fail
-  name: vecrcredentials.kb.io
+  name: vregistrycredentials.kb.io
   rules:
   - apiGroups:
     - registry.astrokube.com
@@ -53,5 +74,5 @@ webhooks:
     - CREATE
     - UPDATE
     resources:
-    - ecrcredentials
+    - registrycredentials
   sideEffects: None

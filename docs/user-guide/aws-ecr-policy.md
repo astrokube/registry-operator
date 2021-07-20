@@ -1,6 +1,6 @@
 # AWS ECR Policy
 
-The AWS Access Key provided in the ECRCredentials objects require the following IAM Policy:
+The AWS Access Key provided in the RegistryCredentials objects require the following IAM Policy:
 
 ```json
 {
