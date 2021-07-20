@@ -2,7 +2,7 @@
 # Image URL to use all building/pushing image targets
 REPO ?= astrokube/registry-controller
 REPO_DOCS ?= astrokube/registry-controller-docs
-VERSION ?= 0.7.0
+VERSION ?= 1.0.0
 IMG=$(REPO):$(VERSION)
 IMG_DOCS=$(REPO_DOCS):$(VERSION)
 
@@ -90,6 +90,10 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
+
+deploy-config: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
+	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
+	$(KUSTOMIZE) build config/default > deploy/kubernetes.yaml
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
