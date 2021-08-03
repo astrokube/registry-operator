@@ -19,6 +19,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -60,8 +61,9 @@ type RegistryCredentialsReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *RegistryCredentialsReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	l := log.FromContext(ctx)
-
 	registryCredentials := &registryv1alpha1.RegistryCredentials{}
+
+	l.Info("Starting the process to reconcile")
 
 	// Skip if registryCredentials doesn't exists
 	if err := r.Get(ctx, req.NamespacedName, registryCredentials); err != nil {
@@ -77,16 +79,18 @@ func (r *RegistryCredentialsReconciler) Reconcile(ctx context.Context, req ctrl.
 		if err := r.authenticate(l, registryCredentials); err != nil {
 			return ctrl.Result{}, err
 		}
-		return ctrl.Result{}, nil
-	} else {
-		// Set Terminating status
-		if err := r.setStatus(l, registryCredentials, registryv1alpha1.RegistryCredentialsTerminating); err != nil {
-			return ctrl.Result{}, err
-		}
-
-		return ctrl.Result{}, nil
-
+		// TODO: Receive this values as parameter
+		r, _ := time.ParseDuration("30m")
+		return ctrl.Result{
+			RequeueAfter: r,
+		}, nil
 	}
+	// Set Terminating status
+	if err := r.setStatus(l, registryCredentials, registryv1alpha1.RegistryCredentialsTerminating); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
@@ -128,7 +132,6 @@ func (r *RegistryCredentialsReconciler) authenticate(log logr.Logger, registryCr
 		}
 		return nil
 	}
-
 	// Set Authenticated status
 	if err := r.setStatus(log, registryCredentials, registryv1alpha1.RegistryCredentialsAuthenticating); err != nil {
 		log.Error(err, "Unable to set status")
@@ -147,7 +150,6 @@ func (r *RegistryCredentialsReconciler) authenticate(log logr.Logger, registryCr
 		return nil
 	case v1alpha1.RegistryCredentialsAuthenticated:
 		secret := r.getSecret(registryCredentials, *intent)
-
 		err = r.createOrUpdateSecret(log, &secret)
 		if err != nil {
 			if err := r.setError(log, registryCredentials, err); err != nil {
@@ -207,6 +209,8 @@ func (r *RegistryCredentialsReconciler) createOrUpdateSecret(log logr.Logger, ob
 		Name:      object.ObjectMeta.Name,
 		Namespace: object.ObjectMeta.Namespace,
 	}, &corev1.Secret{})
+
+	// TODO: check if the token is expired before to update it
 	if err != nil && !errors.IsNotFound(err) {
 		return err
 	}
